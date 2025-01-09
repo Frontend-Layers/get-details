@@ -1,32 +1,16 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## [1.0.3]
 
-## [Unreleased]
+- added CDN test
 
-### Added
-- Description of any new features or changes.
+## [1.0.2]
 
-### Changed
-- Description of changes to existing features.
+~~
 
-### Fixed
-- Description of bugs or issues fixed.
+## [1.0.1] - 2025-01-09
 
-### Deprecated
-- Description of features that are deprecated and may be removed in the future.
+- updated functionality for one attribute and default values
+- added ES6 module
+- performance
 
-### Removed
-- Description of features that were removed.
-
-### Security
-- Description of any security-related updates.
-
-## [1.0.0] - 2025-01-09
-
-### Added
-- Initial release with basic functionality.
-- Example feature added.
-
-### Fixed
-- Resolved an issue with configuration.

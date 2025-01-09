@@ -1,11 +1,21 @@
 {
   "name": "get-details",
-  "version": "1.0.0",
-  "description": "Get Details is a lightweight JavaScript module designed to fetch and display real-time information about NPM packages (and more in the future) directly on your webpage. The module dynamically retrieves the package version and last update date using parameters passed via the URL",
+  "version": "1.0.3",
+  "description": "Get package information directly on your web page without import and install",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Andrey Matin",
-  "license": "MIT"
+  "author": "Frontend Layers",
+  "license": "MIT",
+  "keywords": [
+    "latest",
+    "version",
+    "npm",
+    "pkg",
+    "package",
+    "package.json",
+    "current",
+    "module"
+  ]
 }

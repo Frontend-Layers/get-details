@@ -1,82 +1,95 @@
 (function () {
-  /**
-   * Extract parameters from a given <script> element's data-* attributes
-   *
-   * @param {HTMLScriptElement} scriptElement - The script element to extract parameters from
-   * @returns {Object} Object containing package name, target element, and data source
-   */
-  function getScriptParams(scriptElement) {
-    return {
-      package: scriptElement.getAttribute('data-pack'), // The name of the package
-      target: scriptElement.getAttribute('data-target') || '#version', // The target element selector
-      source: scriptElement.getAttribute('data-src') || 'npm' // The data source (default is 'npm')
-    };
-  }
+  let cachedElements = null;
 
   /**
-   * Insert fetched data into the target element on the web page
-   *
-   * @param {string} elId - The CSS selector of the target element
-   * @param {string} version - The version or data to insert into the target element
+   * Module for fetching and displaying package information from various sources.
+   * Supports any HTML element with data-get-details attribute for configuration.
    */
-  function insertData(elId, version) {
-    const elTarget = document.querySelector(elId); // Find the target element
-    if (elTarget) {
-      elTarget.innerHTML = `${version}`; // Insert the version or data into the element
+
+  /**
+   * Parse the data-get-details attribute value
+   *
+   * @param {string} attrValue - The value of data-get-details attribute
+   * @returns {Object} Configuration object containing package name, target element, and data source
+   */
+  const parseAttribute = (attrValue) => {
+    const [pkg, target, source] = attrValue.split(',').map(s => s.trim());
+    if (!pkg) {
+      throw new Error('Package name is required in data-get-details attribute');
     }
-  }
+    return { pkg, target, source: source || 'npm' };
+  };
 
   /**
-   * Fetch the latest version of a package from the NPM registry
+   * Fetch the latest version of a package from NPM registry
    *
-   * @param {string} packageName - The name of the NPM package
-   * @returns {Promise<Object>} A promise resolving to an object with the package version
+   * @param {string} pkgName - Name of the NPM package
+   * @returns {Promise<Object>} Promise resolving to object containing package version
    */
-  function fetchNpmData(packageName) {
-    const url = `https://registry.npmjs.org/${packageName}/latest`; // NPM API endpoint
-    return fetch(url)
-      .then(response => response.json()) // Parse the JSON response
-      .then(data => ({
-        version: data.version, // Extract the version from the response
-      }))
-      .catch(() => ({
-        version: 'Error fetching version', // Handle errors gracefully
-      }));
-  }
+  const fetchNpmData = async (pkgName) => {
+    try {
+      const response = await fetch(`https://registry.npmjs.org/${pkgName}/latest`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return { version: data.version };
+    } catch (error) {
+      console.error('Fetching npm data failed:', error);
+      return { version: 'Error fetching version' };
+    }
+  };
 
   /**
-   * Process a single <script> element with data-* attributes
+   * Process a single element with data-get-details attribute
    *
-   * @param {HTMLScriptElement} scriptElement - The script element to process
+   * @param {HTMLElement} element - Element to process
    */
-  function processScript(scriptElement) {
-    const { package, target, source } = getScriptParams(scriptElement); // Extract parameters
+  const processElement = async (el) => {
+    const elAttr = el.getAttribute('data-get-details');
+    const elTag = el.tagName;
 
-    if (source === 'npm') { // Check if the source is 'npm'
-      fetchNpmData(package).then(({ version }) => {
-        insertData(target, version); // Insert the fetched version into the target element
-        console.log(`Package: ${package}, Version: ${version}, Target: ${target}`); // Debug information
-      });
+    const { pkg, target, source } = parseAttribute(elAttr);
+    let elTarget = '';
+
+    if (elTag !== 'SCRIPT' && !target) {
+      elTarget = el;
     } else {
-      console.warn(`Source "${source}" not supported for script:`, scriptElement); // Handle unsupported sources
+      elTarget = target ? document.querySelector(target) : document.querySelector('#package_version');
     }
-  }
+
+    if (!elTarget) {
+      throw new Error(`Target element is absent`);
+    }
+
+    if (source === 'npm') {
+      try {
+        const { version } = await fetchNpmData(pkg);
+        elTarget.innerHTML = version;
+      } catch (error) {
+        console.error('Error processing element:', error);
+        elTarget.innerHTML = 'Error fetching version';
+      }
+    } else {
+      console.warn(`Source "${source}" not supported for element:`, el);
+      elTarget.innerHTML = 'Unsupported source';
+    }
+  };
 
   /**
-   * Main initialization function
-   * Finds all <script> elements with specific attributes and processes them
+   * Initialize the package version fetcher
+   * Finds all elements with data-get-details attribute and processes them
    */
-  function init() {
-    const scripts = document.querySelectorAll('script[data-pack]'); // Find all <script> elements with a `data-pack` attribute
-    if (!scripts) return;
+  const init = async () => {
+    if (cachedElements === null) {
+      cachedElements = document.querySelectorAll('[data-get-details]');
+    }
 
-    scripts.forEach(scriptElement => {
-      processScript(scriptElement); // Process each script individually
-    });
-  }
+    if (!cachedElements.length) return;
 
-  // Automatically run the initialization function on script load
-  document.addEventListener('DOMContentLoaded', () => {
-    init();
-  });
+    await Promise.all(Array.from(cachedElements).map(el => processElement(el)));
+  };
+
+  // Optional: Auto-initialize when DOM is loaded
+  document.addEventListener('DOMContentLoaded', init);
 })();

@@ -1,16 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Test</title>
 </head>
+
 <body>
   <h1>Test Page</h1>
 
-  <div id="version">Loading...</div>
+  <h4>scss-reset</h4>
+  <div id="package_version">Loading...</div>
+
+  <h4>html-base</h4>
+  <div id="package_version_html-base" data-get-details="html-base, #package_version_html-base">Loading...</div>
+
+  <h4>npm</h4>
+  <div id="package_version_html-base" data-get-details="npm">Loading...</div>
+
+  <h4>bootstrap</h4>
+  <div id="ver_bootstrap">Loading...</div>
+  <div data-get-details="bootstrap,#ver_bootstrap"></div>
+
+  <h4>jquery</h4>
+  <div class="ver_jquery">Loading...</div>
+
+  <h4>#tfjsversion</h4>
+  <p id="tfjsversion">Loading...</p>
+
+  <script src="./index.js" data-get-details="scss-reset"></script>
+
+  <script type="module">
+    import getDetails from './es.js';
+    getDetails({ packageName: 'jquery', target: '.ver_jquery' });
+  </script>
 
 
-  <script src="./index.js" data-pack="scss-reset"></script>
+  <script src="https://cdn.jsdelivr.net/npm/get-details" data-get-details="@tensorflow/tfjs, #tfjsversion"></script>
 </body>
+
 </html>
