@@ -9,6 +9,7 @@ Fetch package information directly on your web page by austetic manner
 - Config through a single `data-get-details` attribute
 - Supports multiple elements
 - Available as ES6 module
+- Supports NPM (default), GitHub and PyPI
 
 ---
 
@@ -34,11 +35,22 @@ Fetch package information directly on your web page by austetic manner
 
 ### ES6 Module Usage
 
+Please install npm package
+
+```shell
+npm i get-details
+```
 Import and initialize in your JavaScript:
 
 ```javascript
   import getDetails from 'get-details/es.js';
-  getDetails({ packageName: 'package-name', target: 'target-element' });
+  getDetails();
+```
+
+It still works with `data-*` but you can add parameters by functions argument
+
+```javascript
+getDetails({ packageName: 'package-name', target: 'target-element' });
 ```
 
 ---
@@ -69,7 +81,7 @@ Contributions welcome! Feel free to:
 
 ## Roadmap
 
-- Add support for additional package details
-- Implement GitHub and PyPI sources
-- Add data formatting options
-- Support for custom data sources
+- ? Add support for additional package details
+- ? Implement GitLab and Bitbucket sources
+- ? Add data formatting options
+- ? ES6 console and report format

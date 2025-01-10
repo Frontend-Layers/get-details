@@ -38,6 +38,68 @@ const fetchNpmData = async (pkgName) => {
 };
 
 /**
+ * Fetch the latest version of a package from PyPI
+ *
+ * @param {string} pkgName - Name of the PyPI package
+ * @returns {Promise<Object>} Promise resolving to object containing package version
+ */
+const fetchPyPIData = async (pkgName) => {
+  try {
+    const response = await fetch(`https://pypi.org/pypi/${pkgName}/json`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return { version: data.info.version };
+  } catch (error) {
+    console.error('Fetching PyPI data failed:', error);
+    return { version: 'Error fetching version' };
+  }
+};
+
+/**
+ * Fetch the latest release version from GitHub
+ *
+ * @param {string} repoPath - Repository path in format "owner/repo"
+ * @returns {Promise<Object>} Promise resolving to object containing release version
+ */
+const fetchGitHubData = async (repoPath) => {
+  try {
+    const response = await fetch(`https://api.github.com/repos/${repoPath}/releases/latest`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    // Remove 'v' prefix if present
+    const version = data.tag_name.startsWith('v') ? data.tag_name.slice(1) : data.tag_name;
+    return { version };
+  } catch (error) {
+    console.error('Fetching GitHub data failed:', error);
+    return { version: 'Error fetching version' };
+  }
+};
+
+/**
+ * Get data from the specified source
+ *
+ * @param {string} source - Source name (npm, pypi, or github)
+ * @param {string} pkg - Package or repository name
+ * @returns {Promise<Object>} Promise resolving to object containing version
+ */
+const getVersionData = async (source, pkg) => {
+  switch (source.toLowerCase()) {
+    case 'npm':
+      return fetchNpmData(pkg);
+    case 'pypi':
+      return fetchPyPIData(pkg);
+    case 'github':
+      return fetchGitHubData(pkg);
+    default:
+      throw new Error(`Unsupported source: ${source}`);
+  }
+};
+
+/**
  * Process a single element with data-get-details attribute or direct parameters
  *
  * @param {HTMLElement} element - Element to process
@@ -47,7 +109,7 @@ const processElement = async (el, params = {}) => {
   let elAttr = el.getAttribute('data-get-details');
   const elTag = el.tagName;
 
-  // Если параметры переданы напрямую, используем их вместо атрибутов элемента
+  // If direct parameters are provided, use them instead of element attributes
   if (params.packageName) {
     elAttr = [params.packageName, params.target || '', params.source || ''].join(',');
   }
@@ -58,24 +120,19 @@ const processElement = async (el, params = {}) => {
   if (elTag !== 'SCRIPT' && !target) {
     elTarget = el;
   } else {
-    elTarget = target ? document.querySelector(target) : document.querySelector('#package_version');
+    elTarget = target ? document.querySelector(target) : document.querySelector('#package_version, .current-version');
   }
 
   if (!elTarget) {
     throw new Error('Target element is absent');
   }
 
-  if (source === 'npm') {
-    try {
-      const { version } = await fetchNpmData(packageName);
-      elTarget.innerHTML = version;
-    } catch (error) {
-      console.error('Error processing element:', error);
-      elTarget.innerHTML = 'Error fetching version';
-    }
-  } else {
-    console.warn(`Source "${source}" not supported for element:`, el);
-    elTarget.innerHTML = 'Unsupported source';
+  try {
+    const { version } = await getVersionData(source, packageName);
+    elTarget.innerHTML = version;
+  } catch (error) {
+    console.error('Error processing element:', error);
+    elTarget.innerHTML = error.message || 'Error fetching version';
   }
 };
 
@@ -85,6 +142,9 @@ const processElement = async (el, params = {}) => {
  * or process single element with direct parameters
  *
  * @param {Object} options - Options object with packageName, target, and source
+ * @param {string} options.packageName - Package name or repository path
+ * @param {string} [options.target=null] - Target element selector
+ * @param {string} [options.source='npm'] - Source type: 'npm', 'pypi', or 'github'
  */
 const main = async ({ packageName, target = null, source = 'npm' } = {}) => {
   if (!packageName) {

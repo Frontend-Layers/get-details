@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4]
+
+- updated test page
+- added GitHub and PyPI support
+- added index page
+- updated credentials
+
 ## [1.0.3]
 
 - added CDN test

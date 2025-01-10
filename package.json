@@ -1,11 +1,16 @@
 {
   "name": "get-details",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Get package information directly on your web page without import and install",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frontend-layers/get-details.git"
+  },
+  "homepage": "https://frontend-layers.github.io/get-details/",
   "author": "Frontend Layers",
   "license": "MIT",
   "keywords": [
