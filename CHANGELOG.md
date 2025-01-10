@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.5]
+
+- doc updated
+
 ## [1.0.4]
 
 - updated test page

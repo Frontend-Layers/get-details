@@ -57,7 +57,7 @@ getDetails({ packageName: 'package-name', target: 'target-element' });
 
 ## Supported Sources
 
-Currently supports fetching data from **NPM**.
+Currently supports fetching data from **NPM**, **GitHub** and **PyPI**.
 Additional sources planned for future releases.
 
 ---
