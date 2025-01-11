@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.11]
+
+- docs
+
 ## [1.0.9]
 
 - removed node processing if the script is called multiple times

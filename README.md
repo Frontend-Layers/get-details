@@ -41,7 +41,7 @@ Fetch package information directly on your web page in an aesthetic manner
 Please install npm package
 
 ```shell
-npm i get-details
+npm i get-details --save-dev
 ```
 Import and initialize in your JavaScript:
 
