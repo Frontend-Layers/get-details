@@ -90,7 +90,7 @@ Example of custom format:
     <p class="copy"></p>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/get-details" data-get-details="package_name,,npm,{'%year %copy %name %version - %author (%license)'}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/get-details" data-get-details="get-details,.copy,npm,{'%year %copy %name %version - (%license)'}"></script>
 </body>
 </html>
 ```

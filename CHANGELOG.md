@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.8]
+
+- small doc fixes
+
+## [1.0.7]
+
+- small doc fixes
+
 ## [1.0.6]
 
 - added format parameters
