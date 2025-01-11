@@ -1,8 +1,12 @@
 # Changelog
 
+## [1.0.6]
+
+- added format parameters
+
 ## [1.0.5]
 
-- doc updated
+- corrections for multiple elements
 
 ## [1.0.4]
 

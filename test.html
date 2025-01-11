@@ -15,7 +15,19 @@
 
     <h2 class="mb-4">Test Page</h2>
 
-    <!-- NPM Tests -->
+    <p><a href="./index.html">Back to Index</a></p>
+
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="mb-0">report test</h4>
+      </div>
+      <div class="card-body">
+        <div data-get-details="html-base,,,{%year - %copy %name, %last-update, %version %description ! %homepage, %author %license}" class="alert alert-secondary">Loading...</div>
+        <p class="mb-0">Case: custom <code>id</code> + hosted <code>data-get-details</code></p>
+      </div>
+    </div>
+
     <div class="card mb-4">
       <div class="card-header">
         <h4 class="mb-0">scss-reset</h4>
@@ -181,7 +193,17 @@
       </div>
     </div>
 
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="mb-0">Error Test</h4>
+      </div>
+      <div class="card-body">
+        <p class="alert alert-secondary">Browser Console Errors</p>
+      </div>
+    </div>
+
     <footer class="footer text-center py-3 border-top">
+      <p class="text-muted mb-0">MIT © <span class="current-year"></span> get-details <span class="current-version"></span></p>
       <p class="text-muted mb-0">MIT © <span class="current-year"></span> get-details <span class="current-version"></span></p>
     </footer>
   </div>
@@ -190,6 +212,10 @@
   <script src="./index.js" data-get-details="scss-reset"></script>
 
   <script type="module">
+
+    /**
+     * ES6 and Errors Test
+     */
     import getDetails from './es.js';
     getDetails({ packageName: 'jquery', target: '.ver_jquery' });
 
@@ -204,7 +230,16 @@
     getDetails({ packageName: 'microsoft/typescript', target: '.ver_typescript', source: 'github' });
     getDetails({ packageName: 'vuejs/vue', target: '.ver_vue', source: 'github' });
 
+    // Errors Test
+    getDetails({ packageName: 'get-details', target: '.fake-class' });
+    getDetails({ packageName: 'fake-package-nnnn122343$$$$' });
+    getDetails({ packageName: 'get-details', source: 'fake-source' });
+
+    /**
+     * Footer
+     */
     getDetails({ packageName: 'get-details', target: '.current-version' });
+
   </script>
   <script src="https://cdn.jsdelivr.net/npm/get-details" data-get-details="@tensorflow/tfjs, #tfjsversion"></script>
   <script src="https://cdn.jsdelivr.net/npm/get-year"></script>

@@ -1,6 +1,6 @@
 # Get Details
 
-Fetch package information directly on your web page by austetic manner
+Fetch package information directly on your web page in an aesthetic manner
 
 ---
 ## Features
@@ -10,6 +10,7 @@ Fetch package information directly on your web page by austetic manner
 - Supports multiple elements
 - Available as ES6 module
 - Supports NPM (default), GitHub and PyPI
+- Supports custom format reports
 
 ---
 
@@ -27,11 +28,12 @@ Fetch package information directly on your web page by austetic manner
 
 **Parameters:**
 
-`data-get-details="[package-name][,][target-element][,][source]"`
+`data-get-details="[package-name][,][target-element][,][source],[{format}]"`
 
-- First parameter (required): Package name to fetch
-- Second parameter (optional): Target element selector (default: if `<script>` `#package-version` or element with `data-get-details` attribute )
-- Third parameter (optional): Data source (default: `npm`)
+- **1st parameter** (required): Package name to fetch data for.
+- **2nd parameter** (optional): Target element selector where the data will be inserted. If not provided, defaults to `#package-version`, `.current-version` or any element with the data-get-details attribute.
+- **3rd parameter** (optional): The data source (default: `npm`). Can be `npm`, `github` or `pypi`.
+- **4th parameter** (optional): Custom format, specified within `{}` for personalized reporting.
 
 ### ES6 Module Usage
 
@@ -51,6 +53,46 @@ It still works with `data-*` but you can add parameters by functions argument
 
 ```javascript
 getDetails({ packageName: 'package-name', target: 'target-element' });
+```
+
+---
+
+## Custom Format
+
+You can customize the format of the fetched package information by passing a specific format string in the `data-get-details` attribute. This format string can include placeholders that will be dynamically replaced with package data.
+
+** Placeholders:**
+
+- `%year`: The current year.
+- `%copy`: The copyright symbol (©).
+- `%name`: The package name.
+- `%version`: The package version.
+- `%description`: The package description.
+- `%homepage`: The homepage URL of the package.
+- `%author`: The author's name.
+- `%license`: The license information.
+- `%last-update`: The last update date of the package.
+- `%stars`: The number of stars (for GitHub).
+- `%forks`: The number of forks (for GitHub).
+- `%language`: The programming language (for GitHub).
+- `%repository`: The repository URL.
+- `%maintainers`: The names of maintainers.
+- `%downloads`: The download count for the package.
+- `%release-date`: The release date of the package.
+- `%release-notes`: The release notes for the latest version.
+- `%owner`: The owner of the repository.
+- `%requires`: Whether the package requires Python (for PyPI).
+
+Example of custom format:
+
+```html
+  <footer class="footer">
+    <p class="copy"></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/get-details" data-get-details="package_name,,npm,{'%year %copy %name %version - %author (%license)'}"></script>
+</body>
+</html>
 ```
 
 ---

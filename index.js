@@ -2,24 +2,49 @@
   let cachedElements = null;
 
   /**
-   * Parse the data-get-details attribute value
+   * Parses the value of the data-get-details attribute to extract configuration.
    *
-   * @param {string} attrValue - The value of data-get-details attribute
-   * @returns {Object} Configuration object containing package name, target element, and data source
+   * @param {string} attrValue - The value of data-get-details attribute, containing package name, target element, source, and optionally format.
+   * @returns {Object} - Configuration object containing package name, target element, source, and format (if provided).
+   * @throws {Error} - If the package name is missing in the attribute value.
    */
-  const parseAttribute = (attrValue) => {
-    const [pkg, target, source] = attrValue.split(',').map(s => s.trim());
+  const parse = (attrValue) => {
+    if (!attrValue) {
+      return;
+    }
+
+    const formatMatch = attrValue.match(/{([^}]*)}/);
+
+    if (!formatMatch) {
+      const [pkg, target, source, format] = attrValue.split(',').map((s) => s.trim());
+      if (!pkg) {
+        throw new Error('Package name is required in data-get-details attribute');
+      }
+      return { pkg, target, source: source || 'npm', format: undefined };
+    }
+
+    const configPart = attrValue.slice(0, attrValue.indexOf('{')).trim();
+    const format = formatMatch[1].trim();
+    const [pkg, target, source] = configPart.split(',').map(s => s.trim());
+
     if (!pkg) {
       throw new Error('Package name is required in data-get-details attribute');
     }
-    return { pkg, target, source: source || 'npm' };
+
+    return {
+      pkg,
+      target,
+      source: source || 'npm',
+      format: format || undefined
+    };
   };
 
   /**
-   * Fetch the latest version of a package from NPM registry
+   * Fetches the latest version of an NPM package.
    *
-   * @param {string} pkgName - Name of the NPM package
-   * @returns {Promise<Object>} Promise resolving to object containing package version
+   * @param {string} pkgName - Name of the NPM package to fetch data for.
+   * @returns {Promise<Object>} - A Promise resolving to an object containing package version and other metadata.
+   * @throws {Error} - If the request fails or the package is not found.
    */
   const fetchNpmData = async (pkgName) => {
     try {
@@ -28,18 +53,30 @@
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      return { version: data.version };
+      return {
+        version: data.version,
+        name: data.name,
+        description: data.description || '',
+        author: typeof data.author === 'object' ? data.author.name : data.author || '',
+        license: data.license || '',
+        homepage: data.homepage || '',
+        repository: data.repository?.url || '',
+        lastUpdate: new Date(data.time?.modified || '').toLocaleDateString(),
+        keywords: Array.isArray(data.keywords) ? data.keywords.join(', ') : '',
+        maintainers: Array.isArray(data.maintainers) ? data.maintainers.map(m => m.name).join(', ') : '',
+        dependencies: Object.keys(data.dependencies || {}).length || 0
+      };
     } catch (error) {
-      console.error('Fetching npm data failed:', error);
-      return { version: 'Error fetching version' };
+      return;
     }
   };
 
   /**
-   * Fetch the latest version of a package from PyPI
+   * Fetches the latest version of a PyPI package.
    *
-   * @param {string} pkgName - Name of the PyPI package
-   * @returns {Promise<Object>} Promise resolving to object containing package version
+   * @param {string} pkgName - Name of the PyPI package to fetch data for.
+   * @returns {Promise<Object>} - A Promise resolving to an object containing package version and other metadata.
+   * @throws {Error} - If the request fails or the package is not found.
    */
   const fetchPyPIData = async (pkgName) => {
     try {
@@ -48,43 +85,86 @@
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      return { version: data.info.version };
+      const info = data.info;
+
+      return {
+        version: info.version,
+        name: info.name,
+        description: info.summary || '',
+        author: info.author || '',
+        authorEmail: info.author_email || '',
+        license: info.license || '',
+        homepage: info.home_page || info.project_url || '',
+        repository: info.project_urls?.Source || '',
+        lastUpdate: new Date(info.last_serial ? info.last_serial * 1000 : '').toLocaleDateString(),
+        keywords: info.keywords || '',
+        maintainers: info.maintainer || '',
+        requiresPython: info.requires_python || '',
+        downloads: {
+          lastDay: data.urls?.[0]?.downloads || 0,
+          lastMonth: info.downloads?.last_month || 0,
+          lastWeek: info.downloads?.last_week || 0
+        }
+      };
     } catch (error) {
-      console.error('Fetching PyPI data failed:', error);
-      return { version: 'Error fetching version' };
+      return;
     }
   };
 
   /**
-   * Fetch the latest release version from GitHub
+   * Fetches the latest release version from a GitHub repository.
    *
-   * @param {string} repoPath - Repository path in format "owner/repo"
-   * @returns {Promise<Object>} Promise resolving to object containing release version
+   * @param {string} repoPath - Repository path in the format "owner/repo".
+   * @returns {Promise<Object>} - A Promise resolving to an object containing release version and other metadata.
+   * @throws {Error} - If the request fails or the repository is not found.
    */
   const fetchGitHubData = async (repoPath) => {
     try {
-      const response = await fetch(`https://api.github.com/repos/${repoPath}/releases/latest`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const releaseResponse = await fetch(`https://api.github.com/repos/${repoPath}/releases/latest`);
+      if (!releaseResponse.ok) {
+        throw new Error(`HTTP error! status: ${releaseResponse.status}`);
       }
-      const data = await response.json();
-      // Remove 'v' prefix if present
-      const version = data.tag_name.startsWith('v') ? data.tag_name.slice(1) : data.tag_name;
-      return { version };
+      const releaseData = await releaseResponse.json();
+
+      const repoResponse = await fetch(`https://api.github.com/repos/${repoPath}`);
+      if (!repoResponse.ok) {
+        throw new Error(`HTTP error! status: ${repoResponse.status}`);
+      }
+      const repoData = await repoResponse.json();
+
+      return {
+        version: releaseData.tag_name.startsWith('v') ? releaseData.tag_name.slice(1) : releaseData.tag_name,
+        name: repoData.name,
+        fullName: repoData.full_name,
+        description: repoData.description || '',
+        owner: repoData.owner.login,
+        stars: repoData.stargazers_count,
+        watchers: repoData.watchers_count,
+        forks: repoData.forks_count,
+        homepage: repoData.homepage || '',
+        license: repoData.license?.name || '',
+        lastUpdate: new Date(repoData.updated_at).toLocaleDateString(),
+        language: repoData.language || '',
+        releaseDate: new Date(releaseData.published_at).toLocaleDateString(),
+        releaseAuthor: releaseData.author.login,
+        releaseNotes: releaseData.body || '',
+        openIssues: repoData.open_issues_count,
+        defaultBranch: repoData.default_branch
+      };
     } catch (error) {
-      console.error('Fetching GitHub data failed:', error);
-      return { version: 'Error fetching version' };
+      return;
     }
   };
 
   /**
-   * Get data from the specified source
+   * Retrieves data from a specified source (NPM, PyPI, GitHub).
    *
-   * @param {string} source - Source name (npm, pypi, or github)
-   * @param {string} pkg - Package or repository name
-   * @returns {Promise<Object>} Promise resolving to object containing version
+   * @param {string} source - The source from which to fetch data (e.g., "npm", "pypi", "github").
+   * @param {string} pkg - The package or repository name.
+   * @returns {Promise<Object>} - A Promise resolving to an object containing version and other metadata.
+   * @throws {Error} - If the source is unsupported or the request fails.
    */
-  const getVersionData = async (source, pkg) => {
+  const getData = async (source, pkg) => {
     switch (source.toLowerCase()) {
       case 'npm':
         return fetchNpmData(pkg);
@@ -98,48 +178,117 @@
   };
 
   /**
-   * Process a single element with data-get-details attribute
+   * Processes an element with the data-get-details attribute.
    *
-   * @param {HTMLElement} element - Element to process
+   * @param {HTMLElement} el - The element to process.
+   * @returns {Promise<void>} - A Promise indicating completion of processing.
+   * @throws {Error} - If there are issues with the target element or data fetching.
    */
-  const processElement = async (el) => {
+  const action = async (el) => {
     const elAttr = el.getAttribute('data-get-details');
-    const elTag = el.tagName;
-    const { pkg, target, source } = parseAttribute(elAttr);
+    const { pkg, target, source, format } = parse(elAttr);
 
-    let elTarget;
-    if (elTag !== 'SCRIPT' && !target) {
-      elTarget = el;
+    let elTargets = [];
+    if (el.tagName !== 'SCRIPT' && !target) {
+      elTargets = [el];
     } else {
-      // Look for elements with either #package_version or .current-version if no specific target is given
-      elTarget = target ? document.querySelector(target) : document.querySelector('#package_version, .current-version');
+      elTargets = target ? Array.from(document.querySelectorAll(target)) : Array.from(document.querySelectorAll('#package_version, .current-version'));
     }
 
-    if (!elTarget) {
-      throw new Error('Target element is absent');
+    if (!elTargets.length) {
+      throw new Error('No target elements found');
     }
 
     try {
-      const { version } = await getVersionData(source, pkg);
-      elTarget.innerHTML = version;
+      const data = await getData(source, pkg);
+      let report = getReport(data, format);
+
+      elTargets.forEach((targetEl) => {
+        targetEl.innerHTML = report;
+      });
     } catch (error) {
       console.error('Error processing element:', error);
-      elTarget.innerHTML = error.message || 'Error fetching version';
     }
   };
 
   /**
-   * Initialize the package version fetcher
-   * Finds all elements with data-get-details attribute and processes them
+   * Generates a report based on the provided data and format.
+   *
+   * @param {Object} data - The data object containing package information.
+   * @param {string} format - The format string that may include variables to be replaced.
+   * @returns {string} - The formatted report string.
+   */
+  function getReport(data, format) {
+    if (!format) {
+      return data.version || '';
+    }
+
+    const variables = {
+      '%year': new Date().getFullYear(),
+      '%copy': '©',
+      '%name': data.name || '',
+      '%version': data.version || '',
+      '%description': data.description || '',
+      '%homepage': data.homepage || '',
+      '%author': data.author || '',
+      '%license': data.license || '',
+      '%last-update': data.lastUpdate || '',
+      '%stars': data.stars || '',
+      '%forks': data.forks || '',
+      '%language': data.language || '',
+      '%repository': data.repository || '',
+      '%maintainers': data.maintainers || '',
+      '%downloads': data.downloads?.lastMonth || '',
+      '%release-date': data.releaseDate || '',
+      '%release-notes': data.releaseNotes || '',
+      '%owner': data.owner || '',
+      '%requires': data.requiresPython || ''
+    };
+
+    let result = format;
+    for (const [key, value] of Object.entries(variables)) {
+      const regex = new RegExp(key, 'gi');
+      result = result.replace(regex, value);
+    }
+
+    result = result
+      // Replace multiple spaces with one
+      .replace(/\s+/g, ' ')
+      // Remove spaces before commas
+      .replace(/\s+,/g, ',')
+      // Remove repeating commas
+      .replace(/,+/g, ',')
+      // Remove commas at the beginning and end
+      .trim()
+      .replace(/^,+|,+$/g, '')
+      // Remove empty parentheses
+      .replace(/\(\s*\)/g, '');
+
+    return result;
+  }
+
+  /**
+   * Initializes the package version fetcher and processes all elements with data-get-details attribute.
+   *
+   * @returns {Promise<void>} - A Promise indicating the completion of initialization and processing.
    */
   const init = async () => {
     if (cachedElements === null) {
       cachedElements = document.querySelectorAll('[data-get-details]');
     }
     if (!cachedElements.length) return;
-    await Promise.all(Array.from(cachedElements).map(el => processElement(el)));
+
+    await Promise.all(
+      Array.from(cachedElements).map(async (el) => {
+        try {
+          await action(el);
+        } catch (err) {
+          console.error('Error during element initialization:', err);
+        }
+      })
+    );
   };
 
-  // Optional: Auto-initialize when DOM is loaded
+  // Auto-initialize when DOM is loaded
   document.addEventListener('DOMContentLoaded', init);
 })();
