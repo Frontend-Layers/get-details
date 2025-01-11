@@ -179,10 +179,7 @@
 
   /**
    * Processes an element with the data-get-details attribute.
-   *
-   * @param {HTMLElement} el - The element to process.
-   * @returns {Promise<void>} - A Promise indicating completion of processing.
-   * @throws {Error} - If there are issues with the target element or data fetching.
+   * Uses data-set-details attribute for deduplication.
    */
   const action = async (el) => {
     const elAttr = el.getAttribute('data-get-details');
@@ -204,7 +201,12 @@
       let report = getReport(data, format);
 
       elTargets.forEach((targetEl) => {
-        targetEl.innerHTML = report;
+        // Skip if element was already processed
+        if (!targetEl.dataSetDetails) {
+          targetEl.innerHTML = report;
+          // Mark element as processed
+          targetEl.dataSetDetails = true;
+        }
       });
     } catch (error) {
       console.error('Error processing element:', error);
@@ -268,9 +270,7 @@
   }
 
   /**
-   * Initializes the package version fetcher and processes all elements with data-get-details attribute.
-   *
-   * @returns {Promise<void>} - A Promise indicating the completion of initialization and processing.
+   * Initializes the package version fetcher.
    */
   const init = async () => {
     if (cachedElements === null) {

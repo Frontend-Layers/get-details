@@ -230,7 +230,12 @@ const action = async (el, params = {}) => {
     const report = getReport(data, format);
 
     elTargets.forEach((targetEl) => {
-      targetEl.innerHTML = report;
+      // Skip if element was already processed
+      if (!targetEl.dataSetDetails) {
+        targetEl.innerHTML = report;
+        // Mark element as processed
+        targetEl.dataSetDetails = true;
+      }
     });
   } catch (error) {
     console.error('Error processing element:', error);
@@ -253,11 +258,11 @@ const main = async ({ packageName, target = null, source = 'npm', format = '' } 
   }
 
   if (packageName) {
-    const tempElement = document.createElement('div');
-    tempElement.setAttribute('data-get-details', `${packageName},${target},${source},${format}`);
-    document.body.appendChild(tempElement);
-    await action(tempElement, { packageName, target, source, format });
-    document.body.removeChild(tempElement);
+    const elTmp = document.createElement('div');
+    elTmp.setAttribute('data-get-details',`${packageName},${target},${source},${format}`);
+    document.body.appendChild(elTmp);
+    await action(elTmp, { packageName, target, source, format });
+    document.body.removeChild(elTmp);
   } else {
     const elements = document.querySelectorAll('[data-get-details]');
     if (elements.length && target) {

@@ -10,20 +10,21 @@ Fetch package information directly on your web page in an aesthetic manner
 - Supports multiple elements
 - Available as ES6 module
 - Supports NPM (default), GitHub and PyPI
-- Supports custom format reports
+- Custom format reports
 
 ---
 
 ## Usage
 
 ```html
+<p class="current-version"></p>
 <script src="https://cdn.jsdelivr.net/npm/get-details" data-get-details="package_name"></script>
 ```
 
 ## Extended Configuration
 
 ```html
-<div data-get-details="package_name, html element, package source"></div>
+<div data-get-details="package_name, html element, package source, {%report %format}"></div>
 ```
 
 **Parameters:**
@@ -52,7 +53,7 @@ Import and initialize in your JavaScript:
 It still works with `data-*` but you can add parameters by functions argument
 
 ```javascript
-getDetails({ packageName: 'package-name', target: 'target-element' });
+getDetails({ packageName: 'package-name', target: 'target-element', format: '{ %string }' });
 ```
 
 ---
@@ -63,25 +64,27 @@ You can customize the format of the fetched package information by passing a spe
 
 ** Placeholders:**
 
-- `%year`: The current year.
-- `%copy`: The copyright symbol (©).
-- `%name`: The package name.
-- `%version`: The package version.
-- `%description`: The package description.
-- `%homepage`: The homepage URL of the package.
-- `%author`: The author's name.
-- `%license`: The license information.
-- `%last-update`: The last update date of the package.
-- `%stars`: The number of stars (for GitHub).
-- `%forks`: The number of forks (for GitHub).
-- `%language`: The programming language (for GitHub).
-- `%repository`: The repository URL.
-- `%maintainers`: The names of maintainers.
-- `%downloads`: The download count for the package.
-- `%release-date`: The release date of the package.
-- `%release-notes`: The release notes for the latest version.
-- `%owner`: The owner of the repository.
-- `%requires`: Whether the package requires Python (for PyPI).
+| key              | description                            |
+|------------------|----------------------------------------|
+| %year            | The current year.                      |
+| %copy            | The copyright symbol (©).              |
+| %name            | The package name.                      |
+| %version         | The package version.                   |
+| %description     | The package description.               |
+| %homepage        | The homepage URL of the package.       |
+| %author          | The author's name.                     |
+| %license         | The license information.               |
+| %last-update     | The last update date of the package.   |
+| %stars           | The number of stars (for GitHub).      |
+| %forks           | The number of forks (for GitHub).      |
+| %language        | The programming language (for GitHub). |
+| %repository      | The repository URL.                    |
+| %maintainers     | The names of maintainers.              |
+| %downloads       | The download count for the package.    |
+| %release-date    | The release date of the package.       |
+| %release-notes   | The release notes for the latest version. |
+| %owner           | The owner of the repository.           |
+| %requires        | Whether the package requires Python (for PyPI). |
 
 Example of custom format:
 
