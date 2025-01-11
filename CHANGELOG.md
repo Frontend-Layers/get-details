@@ -1,4 +1,9 @@
 # Changelog
+
+## [1.0.13]
+
+- docs
+
 ## [1.0.12]
 
 - small changes

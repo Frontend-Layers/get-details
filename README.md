@@ -43,6 +43,7 @@ Please install npm package
 ```shell
 npm i get-details --save-dev
 ```
+
 Import and initialize in your JavaScript:
 
 ```javascript
@@ -55,6 +56,16 @@ It still works with `data-*` but you can add parameters by functions argument
 ```javascript
 getDetails({ packageName: 'package-name', target: 'target-element', format: '{ %string }' });
 ```
+
+### Skypack CDN Usage
+
+You can import ES6 module directly from CDN:
+
+```javascript
+  import getDetails from 'https://cdn.skypack.dev/get-details/es6.js?min';
+  getDetails();
+```
+
 
 ---
 
@@ -98,20 +109,15 @@ Example of custom format:
 </html>
 ```
 
----
-
 ## Supported Sources
 
 Currently supports fetching data from **NPM**, **GitHub** and **PyPI**.
 Additional sources planned for future releases.
 
----
 
 ## License
 
 MIT License
-
----
 
 ## Contributing
 
@@ -122,11 +128,14 @@ Contributions welcome! Feel free to:
 - File issues
 - Suggest improvements
 
----
+
+## Supported CDN
+
+| Service          | URL                                    |
+|------------------|----------------------------------------|
+| UNPKG            | https://www.unpkg.com/get-details      |
+| Skypack          | https://cdn.skypack.dev/get-details    |
 
 ## Roadmap
 
-- ? Add support for additional package details
-- ? Implement GitLab and Bitbucket sources
-- ? Add data formatting options
-- ? ES6 console and report format
+- Implement GitLab and Bitbucket sources
