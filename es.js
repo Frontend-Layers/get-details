@@ -222,7 +222,7 @@ const action = async (el, params = {}) => {
   let elTargets = target ? document.querySelectorAll(target) : document.querySelectorAll('#package_version, .current-version');
 
   if (!elTargets.length) {
-    throw new Error('No target elements found');
+    return;
   }
 
   try {
@@ -259,7 +259,7 @@ const main = async ({ packageName, target = null, source = 'npm', format = '' } 
 
   if (packageName) {
     const elTmp = document.createElement('div');
-    elTmp.setAttribute('data-get-details',`${packageName},${target},${source},${format}`);
+    elTmp.setAttribute('data-get-details', `${packageName},${target},${source},${format}`);
     document.body.appendChild(elTmp);
     await action(elTmp, { packageName, target, source, format });
     document.body.removeChild(elTmp);

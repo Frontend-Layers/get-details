@@ -1,4 +1,7 @@
 # Changelog
+## [1.0.12]
+
+- small changes
 
 ## [1.0.11]
 

@@ -193,7 +193,7 @@
     }
 
     if (!elTargets.length) {
-      throw new Error('No target elements found');
+      return;
     }
 
     try {
@@ -282,9 +282,7 @@
       Array.from(cachedElements).map(async (el) => {
         try {
           await action(el);
-        } catch (err) {
-          console.error('Error during element initialization:', err);
-        }
+        } catch (err) {}
       })
     );
   };
