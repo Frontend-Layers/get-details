@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>get-details: Test</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container py-4">
+    <h1 class="display-4 mb-4">get-details</h1>
+
+    <h2 class="mb-4">Test Page - Skypack</h2>
+
+    <p><a href="./index.html">Back to Index</a></p>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="mb-0">CDN Skypack</h4>
+      </div>
+      <div class="card-body">
+        <div id="skypack-version"></div>
+      </div>
+    </div>
+
+    <footer class="footer text-center py-3 border-top">
+      <p class="text-muted mb-0">MIT © <span class="current-year"></span> get-details <span class="current-version"></span></p>
+      <p class="text-muted mb-0">MIT © <span class="current-year"></span> get-details <span class="current-version"></span></p>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./index.js" data-get-details="scss-reset"></script>
+
+  <script type="module">
+
+    /**
+     * ES6 and Errors Test
+     */
+    import getDetails from 'https://cdn.skypack.dev/get-details/es6.js';
+    getDetails({ packageName: 'jquery', target: '.ver_jquery' });
+
+    // NPM packages
+    getDetails({ packageName: 'lodash', target: '.ver_lodash' });
+
+    // PyPI packages
+    getDetails({ packageName: 'requests', target: '.ver_requests', source: 'pypi' });
+    getDetails({ packageName: 'django', target: '.ver_django', source: 'pypi' });
+
+    // GitHub repositories
+    getDetails({ packageName: 'microsoft/typescript', target: '.ver_typescript', source: 'github' });
+    getDetails({ packageName: 'vuejs/vue', target: '.ver_vue', source: 'github' });
+
+    // Errors Test
+    getDetails({ packageName: 'get-details', target: '.fake-class' });
+    getDetails({ packageName: 'fake-package-nnnn122343$$$$' });
+    getDetails({ packageName: 'get-details', source: 'fake-source' });
+
+    /**
+     * Footer
+     */
+    getDetails({ packageName: 'get-details', target: '.current-version' });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/get-year"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
