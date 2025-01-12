@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.16]
+
+- ES module: added `str` parameter to `main()` function to return data without DOM manipulation
+
 ## [1.0.15]
 
 - minor fixes

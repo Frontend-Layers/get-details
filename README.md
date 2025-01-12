@@ -9,6 +9,7 @@ Fetch package information directly on your web page in an aesthetic manner
 - Config through a single `data-get-details` attribute
 - Supports multiple elements
 - Available as ES6 module
+- Return JSON without DOM manipulation
 - Supports NPM (default), GitHub and PyPI
 - Custom format reports
 
@@ -57,9 +58,18 @@ It still works with `data-*` but you can add parameters by functions argument
 getDetails({ packageName: 'package-name', target: 'target-element', format: '{ %string }' });
 ```
 
+### Get JSON data only
+
+Please add parameter `str = true`
+
+```javascript
+const str = getDetails({ packageName: 'package-name', target: 'target-element', format: '{ %string }', str: true });
+console.log(str);
+```
+
 ### Skypack CDN Usage
 
-You can import ES6 module directly from CDN:
+You can try to import ES6 module directly from CDN:
 
 ```javascript
   import getDetails from 'https://cdn.skypack.dev/get-details/es6.js?min';
@@ -115,10 +125,11 @@ Currently supports fetching data from `NPM`, `GitHub`, `PyPI` and `GitLab`.
 
 ## Supported CDN
 
-| Service          | URL                                    |
-|------------------|----------------------------------------|
-| UNPKG            | https://www.unpkg.com/get-details      |
-| Skypack          | https://cdn.skypack.dev/get-details    |
+| Service          | URL                                      |
+|------------------|------------------------------------------|
+| jsDelivr         | https://cdn.jsdelivr.net/npm/get-details |
+| UNPKG            | https://www.unpkg.com/get-details        |
+| Skypack          | https://cdn.skypack.dev/get-details      |
 
 ## Contributing
 

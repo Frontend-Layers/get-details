@@ -128,7 +128,7 @@
             <h5 class="mb-0">NPM Packages</h5>
           </div>
           <div class="card-body">
-            <div class="ver_jquery alert alert-secondary">Loading...</div>
+            <div class="ver_jquery alert alert-secondary">data string output test to console</div>
             <p class="mb-0">jquery: ES6 direct call</p>
             <div class="ver_lodash alert alert-secondary mt-3">Loading...</div>
             <p class="mb-0">lodash: ES6 with class selector</p>
@@ -197,7 +197,8 @@
      * ES6 and Errors Test
      */
     import getDetails from './es.js';
-    getDetails({ packageName: 'jquery', target: '.ver_jquery' });
+    let sDetails = await getDetails({ packageName: 'jquery', target: '.ver_jquery', str: true });
+    console.log(sDetails);
 
     // NPM packages
     getDetails({ packageName: 'lodash', target: '.ver_lodash' }, true);

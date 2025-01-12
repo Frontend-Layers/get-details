@@ -262,6 +262,7 @@ function getReport(data, format) {
  *
  * @param {HTMLElement} el - Element to process
  * @param {Object} params - Direct parameters to override element's data attributes
+ * @returns {Promise<Object|void>} Returns package data if str is true, otherwise void
  */
 const action = async (el, params = {}) => {
   let elAttr = el.getAttribute('data-get-details');
@@ -272,6 +273,13 @@ const action = async (el, params = {}) => {
   }
 
   const { pkg: packageName, target, source, format } = parse(elAttr);
+
+  // If str is true, just return the data
+  if (params.str) {
+    const data = await getData(source, packageName);
+    return format ? getReport(data, format) : data;
+  }
+
   let elTargets = target ? document.querySelectorAll(target) : document.querySelectorAll('#package_version, .current-version');
 
   if (!elTargets.length) {
@@ -297,15 +305,17 @@ const action = async (el, params = {}) => {
 
 /**
  * Initialize the package version fetcher.
- * Finds all elements with data-get-details attribute and processes them.
+ * If str is true, returns the package data instead of processing DOM elements.
  *
- * @param {Object} options - Options object with packageName, target, and source
+ * @param {Object} options - Options object
  * @param {string} options.packageName - Package name or repository path
  * @param {string} [options.target=null] - Target element selector
  * @param {string} [options.source='npm'] - Source type: 'npm', 'pypi', or 'github'
  * @param {string} [options.format=''] - Format string to generate report
+ * @param {boolean} [options.str=false] - If true, returns data instead of processing DOM
+ * @returns {Promise<Object|void>} Returns package data if str is true, otherwise void
  */
-const main = async ({ packageName, target = null, source = 'npm', format = '' } = {}) => {
+const main = async ({ packageName, target = null, source = 'npm', format = '', str = false } = {}) => {
   if (!packageName) {
     throw new Error('Package name is required');
   }
@@ -313,6 +323,11 @@ const main = async ({ packageName, target = null, source = 'npm', format = '' } 
   if (packageName) {
     const elTmp = document.createElement('div');
     elTmp.setAttribute('data-get-details', `${packageName},${target},${source},${format}`);
+
+    if (str) {
+      return action(elTmp, { packageName, target, source, format, str });
+    }
+
     document.body.appendChild(elTmp);
     await action(elTmp, { packageName, target, source, format });
     document.body.removeChild(elTmp);

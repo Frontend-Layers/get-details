@@ -1,6 +1,6 @@
 {
   "name": "get-details",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Get package information directly on your web page without import and install",
   "main": "index.js",
   "scripts": {
