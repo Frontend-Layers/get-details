@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.14]
+
+- added gitlab support
+- docs
+
 ## [1.0.13]
 
 - docs

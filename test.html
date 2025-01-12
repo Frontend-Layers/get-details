@@ -195,26 +195,21 @@
 
     <div class="card mb-4">
       <div class="card-header">
-        <h4 class="mb-0">#tfjsversion</h4>
+        <h4 class="mb-0">Gitlab</h4>
       </div>
       <div class="card-body">
-        <div id="gitlab-version" data-get-details="gitlab-org/gitlab, #gitlab-version, gitlab, {GitLab %version - %description}"></div>
-        <div class="terminal-version" data-get-details="gnachman/iterm2, .terminal-version, gitlab, {iTerm2 %version by %owner}"></div>
-        <div data-get-details="mattermost/mattermost-server,, gitlab, {Mattermost %version - %stars stars}"></div>
-        <p class="mb-0">Gitlab test</p>
-
-        <!-- BitBucket example -->
-        <div id="confluence-ver" data-get-details="atlassian/confluence, #confluence-ver, bitbucket, {Confluence %version by Atlassian}"></div>
-        <div class="jira-version" data-get-details="atlassian/jira-software, .jira-version, bitbucket, {JIRA %version - Last updated: %last-update}"></div>
-        <div data-get-details="atlassian/bitbucket-server,, bitbucket, {Bitbucket Server %version}"></div>
-        <p class="mb-0">BitBucket test</p>
+        <div id="gitlab-version" data-get-details="gitlab-org/gitlab, #gitlab-version, gitlab, {%version - %description}"></div>
       </div>
     </div>
 
-
-    <!-- GitLab example -->
-
-
+    <!-- <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="mb-0">CDN Skypack</h4>
+      </div>
+      <div class="card-body">
+        <div id="skypack-version"></div>
+      </div>
+    </div> -->
 
     <div class="card mb-4">
       <div class="card-header">
@@ -224,6 +219,9 @@
         <p class="alert alert-secondary">Browser Console Errors</p>
       </div>
     </div>
+
+
+
 
     <footer class="footer text-center py-3 border-top">
       <p class="text-muted mb-0">MIT © <span class="current-year"></span> get-details <span class="current-version"></span></p>
@@ -263,8 +261,13 @@
      */
     getDetails({ packageName: 'get-details', target: '.current-version' });
 
+
+    // import getDetails from 'https://cdn.skypack.dev/get-details/es6.js';
+    // getDetails({ packageName: 'lodash', target: '#skypack-version', format: '{%version - %description - %year}' });
+
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/get-details" data-get-details="@tensorflow/tfjs, #tfjsversion"></script>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/get-details" data-get-details="@tensorflow/tfjs, #tfjsversion"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/get-year"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 </body>

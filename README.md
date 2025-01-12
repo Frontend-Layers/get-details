@@ -111,13 +111,14 @@ Example of custom format:
 
 ## Supported Sources
 
-Currently supports fetching data from **NPM**, **GitHub** and **PyPI**.
-Additional sources planned for future releases.
+Currently supports fetching data from `NPM`, `GitHub`, `PyPI` and `GitLab`.
 
+## Supported CDN
 
-## License
-
-MIT License
+| Service          | URL                                    |
+|------------------|----------------------------------------|
+| UNPKG            | https://www.unpkg.com/get-details      |
+| Skypack          | https://cdn.skypack.dev/get-details    |
 
 ## Contributing
 
@@ -128,14 +129,6 @@ Contributions welcome! Feel free to:
 - File issues
 - Suggest improvements
 
+## License
 
-## Supported CDN
-
-| Service          | URL                                    |
-|------------------|----------------------------------------|
-| UNPKG            | https://www.unpkg.com/get-details      |
-| Skypack          | https://cdn.skypack.dev/get-details    |
-
-## Roadmap
-
-- Implement GitLab and Bitbucket sources
+MIT License

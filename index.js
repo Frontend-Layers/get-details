@@ -207,54 +207,7 @@
   };
 
   /**
-   * Fetches the latest release version from a BitBucket repository.
-   *
-   * @param {string} repoPath - Repository path in the format "workspace/repo".
-   * @returns {Promise<Object>} - A Promise resolving to an object containing release version and other metadata.
-   * @throws {Error} - If the request fails or the repository is not found.
-   */
-  const fetchBitBucketData = async (repoPath) => {
-    try {
-      // Fetch latest release
-      const releaseResponse = await fetch(`https://api.bitbucket.org/2.0/repositories/${repoPath}/refs/tags?sort=-name&pagelen=1`);
-      if (!releaseResponse.ok) {
-        throw new Error(`HTTP error! status: ${releaseResponse.status}`);
-      }
-      const releaseData = await releaseResponse.json();
-      const latestTag = releaseData.values[0];
-
-      // Fetch repository details
-      const repoResponse = await fetch(`https://api.bitbucket.org/2.0/repositories/${repoPath}`);
-      if (!repoResponse.ok) {
-        throw new Error(`HTTP error! status: ${repoResponse.status}`);
-      }
-      const repoData = await repoResponse.json();
-
-      return {
-        version: latestTag?.name?.startsWith('v') ? latestTag.name.slice(1) : latestTag?.name || '',
-        name: repoData.name,
-        fullName: repoData.full_name,
-        description: repoData.description || '',
-        owner: repoData.owner.display_name,
-        homepage: repoData.website || '',
-        language: repoData.language || '',
-        lastUpdate: new Date(repoData.updated_on).toLocaleDateString(),
-        releaseDate: latestTag ? new Date(latestTag.date).toLocaleDateString() : '',
-        defaultBranch: repoData.mainbranch?.name || '',
-        size: repoData.size,
-        hasIssues: repoData.has_issues,
-        hasWiki: repoData.has_wiki,
-        isPrivate: repoData.is_private,
-        workspace: repoData.workspace?.name || ''
-      };
-    } catch (error) {
-      return;
-    }
-  };
-
-
-  /**
-   * Retrieves data from a specified source (NPM, PyPI, GitHub, GitLab, BitBucket).
+   * Retrieves data from a specified source (NPM, PyPI, GitHub, GitLab).
    *
    * @param {string} source - The source from which to fetch data.
    * @param {string} pkg - The package or repository name.
@@ -271,8 +224,6 @@
         return fetchGitHubData(pkg);
       case 'gitlab':
         return fetchGitLabData(pkg);
-      case 'bitbucket':
-        return fetchBitBucketData(pkg);
       default:
         throw new Error(`Unsupported source: ${source}`);
     }
@@ -299,6 +250,8 @@
 
     try {
       const data = await getData(source, pkg);
+      if (!data) return;
+
       let report = getReport(data, format);
 
       elTargets.forEach((targetEl) => {
