@@ -129,11 +129,109 @@ const fetchGitHubData = async (repoPath) => {
 };
 
 /**
- * Get data from the specified source (npm, pypi, or github).
+ * Fetches the latest release version from a GitLab repository.
  *
- * @param {string} source - Source name (npm, pypi, or github)
- * @param {string} pkg - Package or repository name
- * @returns {Promise<Object>} Promise resolving to an object containing version and metadata
+ * @param {string} repoPath - Repository path in the format "owner/repo" or "group/subgroup/repo".
+ * @returns {Promise<Object>} - A Promise resolving to an object containing release version and other metadata.
+ * @throws {Error} - If the request fails or the repository is not found.
+ */
+const fetchGitLabData = async (repoPath) => {
+  try {
+    // URL encode the repository path
+    const encodedPath = encodeURIComponent(repoPath);
+
+    // Fetch latest release
+    const releaseResponse = await fetch(`https://gitlab.com/api/v4/projects/${encodedPath}/releases/`);
+    if (!releaseResponse.ok) {
+      throw new Error(`HTTP error! status: ${releaseResponse.status}`);
+    }
+    const releases = await releaseResponse.json();
+    const latestRelease = releases[0]; // GitLab returns releases in descending order
+
+    // Fetch repository details
+    const repoResponse = await fetch(`https://gitlab.com/api/v4/projects/${encodedPath}`);
+    if (!repoResponse.ok) {
+      throw new Error(`HTTP error! status: ${repoResponse.status}`);
+    }
+    const repoData = await repoResponse.json();
+
+    return {
+      version: latestRelease?.tag_name?.startsWith('v') ? latestRelease.tag_name.slice(1) : latestRelease?.tag_name || '',
+      name: repoData.name,
+      fullName: repoData.path_with_namespace,
+      description: repoData.description || '',
+      owner: repoData.namespace.name,
+      stars: repoData.star_count,
+      forks: repoData.forks_count,
+      homepage: repoData.web_url || '',
+      license: repoData.license?.name || '',
+      lastUpdate: new Date(repoData.last_activity_at).toLocaleDateString(),
+      language: repoData.predominant_language || '',
+      releaseDate: latestRelease ? new Date(latestRelease.released_at).toLocaleDateString() : '',
+      releaseAuthor: latestRelease?.author?.name || '',
+      releaseNotes: latestRelease?.description || '',
+      openIssues: repoData.open_issues_count,
+      defaultBranch: repoData.default_branch
+    };
+  } catch (error) {
+    return;
+  }
+};
+
+/**
+ * Fetches the latest release version from a BitBucket repository.
+ *
+ * @param {string} repoPath - Repository path in the format "workspace/repo".
+ * @returns {Promise<Object>} - A Promise resolving to an object containing release version and other metadata.
+ * @throws {Error} - If the request fails or the repository is not found.
+ */
+const fetchBitBucketData = async (repoPath) => {
+  try {
+    // Fetch latest release
+    const releaseResponse = await fetch(`https://api.bitbucket.org/2.0/repositories/${repoPath}/refs/tags?sort=-name&pagelen=1`);
+    if (!releaseResponse.ok) {
+      throw new Error(`HTTP error! status: ${releaseResponse.status}`);
+    }
+    const releaseData = await releaseResponse.json();
+    const latestTag = releaseData.values[0];
+
+    // Fetch repository details
+    const repoResponse = await fetch(`https://api.bitbucket.org/2.0/repositories/${repoPath}`);
+    if (!repoResponse.ok) {
+      throw new Error(`HTTP error! status: ${repoResponse.status}`);
+    }
+    const repoData = await repoResponse.json();
+
+    return {
+      version: latestTag?.name?.startsWith('v') ? latestTag.name.slice(1) : latestTag?.name || '',
+      name: repoData.name,
+      fullName: repoData.full_name,
+      description: repoData.description || '',
+      owner: repoData.owner.display_name,
+      homepage: repoData.website || '',
+      language: repoData.language || '',
+      lastUpdate: new Date(repoData.updated_on).toLocaleDateString(),
+      releaseDate: latestTag ? new Date(latestTag.date).toLocaleDateString() : '',
+      defaultBranch: repoData.mainbranch?.name || '',
+      size: repoData.size,
+      hasIssues: repoData.has_issues,
+      hasWiki: repoData.has_wiki,
+      isPrivate: repoData.is_private,
+      workspace: repoData.workspace?.name || ''
+    };
+  } catch (error) {
+    return;
+  }
+};
+
+
+/**
+ * Retrieves data from a specified source (NPM, PyPI, GitHub, GitLab, BitBucket).
+ *
+ * @param {string} source - The source from which to fetch data.
+ * @param {string} pkg - The package or repository name.
+ * @returns {Promise<Object>} - A Promise resolving to an object containing version and other metadata.
+ * @throws {Error} - If the source is unsupported or the request fails.
  */
 const getData = async (source, pkg) => {
   switch (source.toLowerCase()) {
@@ -143,6 +241,10 @@ const getData = async (source, pkg) => {
       return fetchPyPIData(pkg);
     case 'github':
       return fetchGitHubData(pkg);
+    case 'gitlab':
+      return fetchGitLabData(pkg);
+    case 'bitbucket':
+      return fetchBitBucketData(pkg);
     default:
       throw new Error(`Unsupported source: ${source}`);
   }
